@@ -4,36 +4,36 @@
   ansible.builtin.getent:
     database: passwd
     key: "{{ rename_user_target }}"
-    fail_key: no
+    fail_key: false
 
 - name: Get target user main group info
   ansible.builtin.getent:
     database: group
     key: "{{ rename_user_target }}"
-    fail_key: no
+    fail_key: false
 
 - name: Rename user
-  command: "usermod --login {{ rename_user_target }} {{ rename_user_src }}"
+  ansible.builtin.command: "usermod --login {{ rename_user_target }} {{ rename_user_src }}"
   ignore_errors: true
   register: _rename_user_result
   changed_when: "'user \\'' + rename_user_src + '\\' does not exist' not in _rename_user_result.stderr or getent_passwd[rename_user_target] is none"
   failed_when:
     - _rename_user_result.rc != 0
     - "'user \\'' + rename_user_src + '\\' does not exist' not in _rename_user_result.stderr or getent_passwd[rename_user_target] is none"
-  become: yes
+  become: true
 
 - name: Rename group
-  command: "groupmod -n {{ rename_user_target }} {{ rename_user_src }}"
+  ansible.builtin.command: "groupmod -n {{ rename_user_target }} {{ rename_user_src }}"
   register: _rename_group_result
   changed_when: "'group \\'' + rename_user_src + '\\' does not exist' not in _rename_group_result.stderr or getent_group[rename_user_target] is none"
   failed_when:
     - _rename_group_result.rc != 0
     - "'group \\'' + rename_user_src + '\\' does not exist' not in _rename_group_result.stderr or getent_group[rename_user_target] is none"
   ignore_errors: true
-  become: yes
+  become: true
 
 - name: Move user home
-  command: "usermod -d /home/{{ rename_user_target }} -m {{ rename_user_target }}"
+  ansible.builtin.command: "usermod -d /home/{{ rename_user_target }} -m {{ rename_user_target }}"
   register: _rename_dir_result
   changed_when: "'no changes' not in _rename_dir_result.stdout"
-  become: yes
+  become: true
