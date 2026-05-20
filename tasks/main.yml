@@ -16,19 +16,31 @@
   ansible.builtin.command: "usermod --login {{ rename_user_target }} {{ rename_user_src }}"
   ignore_errors: true
   register: _rename_user_result
-  changed_when: "'user \\'' + rename_user_src + '\\' does not exist' not in _rename_user_result.stderr or getent_passwd[rename_user_target] is none"
+  changed_when: >
+    'user \'' + rename_user_src + '\' does not exist'
+    not in _rename_user_result.stderr
+    or ansible_facts['getent_passwd'].get(rename_user_target) is none
   failed_when:
     - _rename_user_result.rc != 0
-    - "'user \\'' + rename_user_src + '\\' does not exist' not in _rename_user_result.stderr or getent_passwd[rename_user_target] is none"
+    - >
+      'user \'' + rename_user_src + '\' does not exist'
+      not in _rename_user_result.stderr
+      or ansible_facts['getent_passwd'].get(rename_user_target) is none
   become: true
 
 - name: Rename group
   ansible.builtin.command: "groupmod -n {{ rename_user_target }} {{ rename_user_src }}"
   register: _rename_group_result
-  changed_when: "'group \\'' + rename_user_src + '\\' does not exist' not in _rename_group_result.stderr or getent_group[rename_user_target] is none"
+  changed_when: >
+    'group \'' + rename_user_src + '\' does not exist'
+    not in _rename_group_result.stderr
+    or ansible_facts['getent_group'].get(rename_user_target) is none
   failed_when:
     - _rename_group_result.rc != 0
-    - "'group \\'' + rename_user_src + '\\' does not exist' not in _rename_group_result.stderr or getent_group[rename_user_target] is none"
+    - >
+      'group \'' + rename_user_src + '\' does not exist'
+      not in _rename_group_result.stderr
+      or ansible_facts['getent_group'].get(rename_user_target) is none
   ignore_errors: true
   become: true
 
